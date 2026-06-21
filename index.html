@@ -5,32 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pixel Dino Ambience Patrol</title>
   
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/dist/index.global.js"></script>
-  
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    /* 移除外來腳本干擾，全用純 CSS 鋪底 */
     body {
-      margin: 0;
-      padding: 0;
-      background-color: #05070d;
-      overflow: hidden;
+      margin: 0; padding: 0; background-color: #05070d; overflow: hidden;
+      color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif;
     }
-    .select-none {
-      user-select: none;
-      -webkit-user-select: none;
+    .select-none { user-select: none; -webkit-user-select: none; }
+    .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    /* 確保 UI 元件長相不依賴 Tailwind */
+    .btn-action {
+      height: 20px; padding: 0 6px; border-radius: 4px; font-family: monospace; font-size: 8px;
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 2px;
     }
   </style>
 </head>
 <body>
 
   <div id="root">
-    <div class="min-h-screen bg-[#05070d] flex flex-col items-center justify-center p-6">
-      <div class="w-full max-w-[728px] aspect-[728/90] bg-[#090d16] border border-white/10 rounded-xl flex items-center justify-center">
-        <span class="text-zinc-500 font-mono text-xs tracking-widest animate-pulse">KAIJU SYSTEM LOADING...</span>
+    <div class="flex-center" style="min-height: 100vh; padding: 24px;">
+      <div style="width: 100%; max-w: 728px; aspect-ratio: 728/90; background-color: #090d16; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+        <span style="color: #71717a; font-family: monospace; font-size: 12px; letter-spacing: 0.1em;">KAIJU SYSTEM INITIALIZING...</span>
       </div>
     </div>
   </div>
@@ -38,171 +39,73 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // ==========================================
-    // 1. DinosaurPixelData 點陣矩陣
-    // ==========================================
     const DINO_FRAMES = {
-      idle: [
-        [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
-        ]
-      ],
+      idle: [["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"]],
       walk: [
-        [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C...........", "............C...........", "...........CC...........", "........................"
-        ],
-        [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "...............C........", "...............C........", "..............CC........", "........................"
-        ]
+        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C...........", "............C...........", "...........CC...........", "........................"],
+        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "...............C........", "...............C........", "..............CC........", "........................"]
       ],
       fire: [
-        [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...",
-          "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
-          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
-        ],
-        [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...",
-          "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
-          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
-        ]
+        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...", "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....", ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"],
+        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...", "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....", ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"]
       ]
     };
 
-    const TREE_FRAMES = {
-      healthy: [
-        "....TT....", "...TTTT...", "..TTTTTT..", ".TTTTTTTT.", "TTTTTTTTTT", "....HH....", "....HH...."
-      ]
-    };
-
+    const TREE_FRAMES = { healthy: ["....TT....", "...TTTT...", "..TTTTTT..", ".TTTTTTTT.", "TTTTTTTTTT", "....HH....", "....HH...."] };
     const APPLE_FRAME = ["..LL..", ".AAAA.", "AAAAAA", "AAAAAA", ".AAAA.", "..AA.."];
     const CAKE_FRAME  = ["..FF..", ".CWCW.", "MMMMM", "MMMMM"];
 
-    // ==========================================
-    // 2. RetroSynth 音效大師
-    // ==========================================
     class RetroSynth {
-      constructor() {
-        this.ctx = null;
-        this.muted = true;
-        this.sizzleOsc = null;
-        this.sizzleGain = null;
-      }
-      init() {
-        if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-      }
-      setMute(m) {
-        this.muted = m;
-        if (m) this.stopFireSizzle();
-      }
+      constructor() { this.ctx = null; this.muted = true; this.sizzleOsc = null; this.sizzleGain = null; }
+      init() { if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } }
+      setMute(m) { this.muted = m; if (m) this.stopFireSizzle(); }
       triggerRoar() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(90, now);
-        osc.frequency.linearRampToValueAtTime(40, now + 0.4);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.4);
+        if (this.muted) return; this.init(); const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now); osc.frequency.linearRampToValueAtTime(40, now + 0.4);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.4);
       }
       triggerEatSound() {
-        if (this.muted) return;
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.setValueAtTime(300, now + 0.08);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
+        if (this.muted) return; this.init(); const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.setValueAtTime(300, now + 0.08);
+        gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.15);
       }
       startFireSizzle() {
-        if (this.muted || this.sizzleOsc) return;
-        this.init();
+        if (this.muted || this.sizzleOsc) return; this.init();
         try {
-          const now = this.ctx.currentTime;
-          this.sizzleOsc = this.ctx.createOscillator();
-          this.sizzleGain = this.ctx.createGain();
-          this.sizzleOsc.type = 'square';
-          this.sizzleOsc.frequency.setValueAtTime(220, now);
-          this.sizzleGain.gain.setValueAtTime(0.03, now);
-          
-          const lfo = this.ctx.createOscillator();
-          const lfoGain = this.ctx.createGain();
-          lfo.type = 'sawtooth';
-          lfo.frequency.setValueAtTime(35, now);
-          lfoGain.gain.setValueAtTime(100, now);
-          lfo.connect(lfoGain);
-          lfoGain.connect(this.sizzleOsc.frequency);
-          
-          this.sizzleOsc.connect(this.sizzleGain);
-          this.sizzleGain.connect(this.ctx.destination);
-          
-          lfo.start(now);
-          this.sizzleOsc.start(now);
-          this.sizzleOsc.lfoRef = lfo;
+          const now = this.ctx.currentTime; this.sizzleOsc = this.ctx.createOscillator(); this.sizzleGain = this.ctx.createGain();
+          this.sizzleOsc.type = 'square'; this.sizzleOsc.frequency.setValueAtTime(220, now); this.sizzleGain.gain.setValueAtTime(0.03, now);
+          const lfo = this.ctx.createOscillator(); const lfoGain = this.ctx.createGain();
+          lfo.type = 'sawtooth'; lfo.frequency.setValueAtTime(35, now); lfoGain.gain.setValueAtTime(100, now);
+          lfo.connect(lfoGain); lfoGain.connect(this.sizzleOsc.frequency);
+          this.sizzleOsc.connect(this.sizzleGain); this.sizzleGain.connect(this.ctx.destination);
+          lfo.start(now); this.sizzleOsc.start(now); this.sizzleOsc.lfoRef = lfo;
         } catch(e){}
       }
       stopFireSizzle() {
-        if (this.sizzleOsc) {
-          try {
-            this.sizzleOsc.stop();
-            this.sizzleOsc.lfoRef.stop();
-          } catch(e){}
-          this.sizzleOsc = null;
-          this.sizzleGain = null;
-        }
+        if (this.sizzleOsc) { try { this.sizzleOsc.stop(); this.sizzleOsc.lfoRef.stop(); } catch(e){} this.sizzleOsc = null; this.sizzleGain = null; }
       }
     }
 
     const DINO_SKINS = [
-      { id: 'cyber', name: 'Cyber Neon', primary: '#0df', secondary: '#005f73', accent: '#f72585', plates: '#7209b7', eye: '#ffffff', description: 'A glowing radioactive baby monster fueled by 80s cyber waves.' },
-      { id: 'gigan', name: 'Emerald Rex', primary: '#10b981', secondary: '#a7f3d0', accent: '#fbbf24', plates: '#06b6d4', eye: '#ef4444', description: 'The ancient, legendary atomic protector of modern digital islands.' },
-      { id: 'magma', name: 'Volcanic Red', primary: '#ef4444', secondary: '#fcd34d', accent: '#ffffff', plates: '#b91c1c', eye: '#f59e0b', description: 'An explosive magma lizard summoned from the high-temperature core.' },
-      { id: 'cosmic', name: 'Cosmic Star', primary: '#8b5cf6', secondary: '#4c1d95', plates: '#f59e0b', accent: '#ec4899', eye: '#06b6d4', description: 'A mystical star-born lizard glowing with cosmic nebular waves.' }
+      { id: 'cyber', name: 'Cyber Neon', primary: '#0df', secondary: '#005f73', accent: '#f72585', plates: '#7209b7', eye: '#ffffff' },
+      { id: 'gigan', name: 'Emerald Rex', primary: '#10b981', secondary: '#a7f3d0', accent: '#fbbf24', plates: '#06b6d4', eye: '#ef4444' },
+      { id: 'magma', name: 'Volcanic Red', primary: '#ef4444', secondary: '#fcd34d', accent: '#ffffff', plates: '#b91c1c', eye: '#f59e0b' },
+      { id: 'cosmic', name: 'Cosmic Star', primary: '#8b5cf6', secondary: '#4c1d95', plates: '#f59e0b', accent: '#ec4899', eye: '#06b6d4' }
     ];
 
     const FLAME_PRESETS = [
-      { id: 'plasma', name: 'Teal Plasma', primary: '#06b6d4', secondary: '#3b82f6', spark: '#ffffff' },
-      { id: 'thermo', name: 'Hellfire', primary: '#f97316', secondary: '#facc15', spark: '#fef08a' },
-      { id: 'toxic', name: 'Acid Mist', primary: '#22c55e', secondary: '#15803d', spark: '#a3e635' },
-      { id: 'star', name: 'Starlight', primary: '#ec4899', secondary: '#8b5cf6', spark: '#fdf2f8' }
+      { id: 'plasma', name: 'Teal Plasma', primary: '#06b6d4', secondary: '#3b82f6' },
+      { id: 'thermo', name: 'Hellfire', primary: '#f97316', secondary: '#facc15' },
+      { id: 'toxic', name: 'Acid Mist', primary: '#22c55e', secondary: '#15803d' },
+      { id: 'star', name: 'Starlight', primary: '#ec4899', secondary: '#8b5cf6' }
     ];
 
-    // ==========================================
-    // 4. SVG 向量圖示
-    // ==========================================
     const Icons = {
-      Apple: () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2v4"/></svg>,
+      Apple: () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2v4"/></svg>,
       Sparkles: () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>,
       Palette: () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.63-.77 1.63-1.7 0-.42-.15-.81-.41-1.14-.26-.33-.41-.74-.41-1.19 0-.92.77-1.63 1.7-1.63h1.3c4.73 0 8.78-4.04 8.78-8.78C22 5.31 17.5 2 12 2z"/></svg>,
       Flame: () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
@@ -211,13 +114,8 @@
       RotateCcw: () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
     };
 
-    // ==========================================
-    // 5. 主網頁元件 App
-    // ==========================================
     function App() {
-      const canvasRef = useRef(null);
-      const synthRef = useRef(null);
-
+      const canvasRef = useRef(null); const synthRef = useRef(null);
       const [selectedSkinIndex, setSelectedSkinIndex] = useState(0);
       const [selectedFlameIndex, setSelectedFlameIndex] = useState(0);
       const [isWalking, setIsWalking] = useState(true);
@@ -225,33 +123,163 @@
       const [soundEnabled, setSoundEnabled] = useState(false);
       const [consumedCount, setConsumedCount] = useState(0);
 
-      const walkSpeed = 1.2;
-      const dinoScale = 2.1;
-      const flameSpeed = 5.2;
-      const beamWidth = 6;
-      const flameGravity = -0.02;
+      const walkSpeed = 1.2; const dinoScale = 2.1; const flameSpeed = 5.2; const beamWidth = 6; const flameGravity = -0.02;
+      const selectedSkin = DINO_SKINS[selectedSkinIndex]; const selectedFlame = FLAME_PRESETS[selectedFlameIndex];
 
-      const selectedSkin = DINO_SKINS[selectedSkinIndex];
-      const selectedFlame = FLAME_PRESETS[selectedFlameIndex];
+      const dinoRef = useRef({ x: 220, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "點擊天空丟零食餵我！🦖", ticks: 150 } });
+      const snacksRef = useRef([]); const treesRef = useRef([]); const starsRef = useRef([]); const sparksRef = useRef([]);
 
-      const dinoRef = useRef({
-        x: 220, y: 0, direction: 1, frameIndex: 0, ticks: 0,
-        isEating: false, eatingTicks: 0,
-        speechBubble: { text: "點擊天空丟零食餵我！🦖", ticks: 150 }
-      });
-
-      const snacksRef = useRef([]);
-      const treesRef = useRef([]);
-      const starsRef = useRef([]);
-      const sparksRef = useRef([]);
-
-      const getSynth = () => {
-        if (!synthRef.current) {
-          synthRef.current = new RetroSynth();
-        }
-        return synthRef.current;
+      const getSynth = () => { if (!synthRef.current) { synthRef.current = new RetroSynth(); } return synthRef.current; };
+      const toggleSound = () => {
+        const isNowOn = !soundEnabled; setSoundEnabled(isNowOn); const synth = getSynth(); synth.setMute(!isNowOn);
+        if (isNowOn) { synth.triggerRoar(); if (isFiring) synth.startFireSizzle(); } else { synth.stopFireSizzle(); }
       };
 
-      const toggleSound = () => {
-        const isNowOn = !soundEnabled;
-        setSoundEnabled(isNow
+      const populateEnvironment = () => {
+        const newTrees = []; for (let i = 0; i < 8; i++) { newTrees.push({ id: i, x: 60 + i * 90 + Math.random() * 20, heightScale: 0.85 + Math.random() * 0.3 }); } treesRef.current = newTrees;
+        const newStars = []; for (let i = 0; i < 30; i++) { newStars.push({ x: Math.random() * 728, y: Math.random() * 45, size: 0.8 + Math.random() * 1.5, alpha: Math.random(), blinkSpeed: 0.006 + Math.random() * 0.012 }); } starsRef.current = newStars;
+      };
+
+      useEffect(() => { populateEnvironment(); }, []);
+      useEffect(() => { const synth = getSynth(); if (isFiring && soundEnabled) { synth.startFireSizzle(); } else { synth.stopFireSizzle(); } return () => synth.stopFireSizzle(); }, [isFiring, soundEnabled]);
+
+      useEffect(() => {
+        const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d'); if (!ctx) return;
+        let animId; let frameCount = 0;
+        const renderLoop = () => {
+          frameCount++; const w = canvas.width; const h = canvas.height; const gY = h - 16; const dState = dinoRef.current;
+          ctx.fillStyle = '#0a0d17'; ctx.fillRect(0, 0, w, h);
+          starsRef.current.forEach(star => { star.alpha += star.blinkSpeed; if (star.alpha > 1 || star.alpha < 0.2) star.blinkSpeed = -star.blinkSpeed; ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`; ctx.fillRect(star.x, star.y, star.size, star.size); });
+          ctx.strokeStyle = 'rgba(99, 102, 241, 0.04)'; ctx.lineWidth = 1; for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+          ctx.fillStyle = '#111827'; ctx.fillRect(0, gY, w, 16);
+          ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(w, gY); ctx.stroke();
+
+          treesRef.current.forEach(t => {
+            const frameSet = TREE_FRAMES.healthy; const treeH = frameSet.length; const treeW = frameSet[0].length;
+            const sway = Math.sin(frameCount * 0.03 + t.x * 0.1) * 0.8; const tScale = 1.4 * t.heightScale;
+            const tLeftX = t.x - (treeW * tScale) / 2 + sway; const tTopY = gY - treeH * tScale + 1;
+            for (let r = 0; r < treeH; r++) {
+              const rowStr = frameSet[r]; for (let c = 0; c < treeW; c++) {
+                const char = rowStr[c]; if (char === '.') continue; let col = 'transparent'; if (char === 'T') col = '#047857'; else if (char === 'H') col = '#78350f';
+                if (col !== 'transparent') { ctx.fillStyle = col; ctx.fillRect(tLeftX + c * tScale, tTopY + r * tScale, tScale, tScale); }
+              }
+            }
+          });
+
+          snacksRef.current.forEach(sn => { if (!sn.isGrounded) { sn.vy += 0.22; sn.y += sn.vy; if (sn.y >= gY - 6) { sn.y = gY - 6; sn.vy = -sn.vy * 0.3; if (Math.abs(sn.vy) < 0.4) sn.isGrounded = true; } } });
+          const dinoW = 24 * dinoScale; const dinoH = 20 * dinoScale; dState.y = gY - dinoH + 2;
+          if (dState.isEating) { dState.eatingTicks++; if (dState.eatingTicks > 45) { dState.isEating = false; dState.eatingTicks = 0; } }
+
+          if (isWalking && !dState.isEating) {
+            dState.ticks++; if (dState.ticks % 6 === 0) dState.frameIndex = (dState.frameIndex + 1) % DINO_FRAMES.walk.length;
+            dState.x += dState.direction * walkSpeed; let hasFoodNear = false; let foodToChase = null; let shortestDist = 99999;
+            snacksRef.current.forEach(sn => { const dx = sn.x - (dState.x + dinoW / 2); if (Math.abs(dx) < shortestDist) { shortestDist = Math.abs(dx); foodToChase = sn; } });
+            if (foodToChase && shortestDist < 300) { hasFoodNear = true; const targetDir = foodToChase.x > (dState.x + dinoW / 2) ? 1 : -1; if (targetDir !== dState.direction) dState.direction = targetDir; }
+            if (!hasFoodNear) { if (dState.x > w - dinoW - 20 && dState.direction === 1) dState.direction = -1; else if (dState.x < 20 && dState.direction === -1) dState.direction = 1; }
+          } else {
+            dState.ticks++; if (dState.ticks % 15 === 0) dState.frameIndex = (dState.frameIndex + 1) % DINO_FRAMES.idle.length;
+          }
+
+          snacksRef.current = snacksRef.current.filter(sn => {
+            const dCenterX = dState.x + dinoW / 2;
+            if (Math.abs(sn.x - dCenterX) < 24 && sn.y > gY - 14) {
+              dState.isEating = true; dState.eatingTicks = 0; setConsumedCount(prev => prev + 1);
+              const nomTexts = ["好吃！ ♥", "美味 ✨", "讚啦 🍰", "嗷嗚 🍎"]; dState.speechBubble = { text: nomTexts[Math.floor(Math.random() * nomTexts.length)], ticks: 80 };
+              getSynth().triggerEatSound();
+              for (let s = 0; s < 8; s++) { sparksRef.current.push({ x: sn.x, y: sn.y, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 1) * 3, color: sn.type === 'apple' ? '#ef4444' : '#fb7185', size: 2, life: 0, maxLife: 15 + Math.random() * 10 }); }
+              return false;
+            }
+            return true;
+          });
+
+          if (frameCount % 600 === 0 && Math.random() > 0.5 && !dState.speechBubble) {
+            const quotes = ["吼！ ⚡", "無限循環", "舒服 ♪", "肚子餓了！"]; dState.speechBubble = { text: quotes[Math.floor(Math.random() * quotes.length)], ticks: 100 };
+          }
+
+          let activeFrameMatrix = isFiring ? DINO_FRAMES.fire[(frameCount % 18 < 9) ? 0 : 1] : (dState.isEating ? DINO_FRAMES.fire[(frameCount % 10 < 5) ? 0 : 1] : (isWalking ? DINO_FRAMES.walk[dState.frameIndex % DINO_FRAMES.walk.length] : DINO_FRAMES.idle[dState.frameIndex % DINO_FRAMES.idle.length]));
+          const isFacingRight = dState.direction === 1;
+
+          for (let r = 0; r < 20; r++) {
+            const rowString = activeFrameMatrix[r]; if (!rowString) continue;
+            for (let c = 0; c < 24; c++) {
+              const char = rowString[c]; if (char === '.') continue; const drawCol = isFacingRight ? c : (23 - c);
+              const px = dState.x + drawCol * dinoScale; const py = dState.y + r * dinoScale;
+              let pixelColor = selectedSkin.primary;
+              if (char === 'O') pixelColor = selectedSkin.primary; else if (char === 'B') pixelColor = selectedSkin.secondary;
+              else if (char === 'S') pixelColor = isFiring ? (frameCount % 12 < 6 ? '#ffffff' : selectedFlame.primary) : selectedSkin.plates;
+              else if (char === 'E') pixelColor = selectedSkin.eye; else if (char === 'C') pixelColor = selectedSkin.accent; else if (char === 'M') pixelColor = '#ffd200';
+              ctx.fillStyle = pixelColor; ctx.fillRect(px, py, dinoScale, dinoScale);
+            }
+          }
+
+          const realMouthX = dState.x + (isFacingRight ? 18.5 : 5.5) * dinoScale; const realMouthY = dState.y + 5.2 * dinoScale;
+          if (isFiring) {
+            const count = Math.ceil(beamWidth / 2);
+            for (let i = 0; i < count; i++) {
+              const particleAngle = (isFacingRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.22; const pSpeed = flameSpeed * (0.8 + Math.random() * 0.4);
+              sparksRef.current.push({ x: realMouthX, y: realMouthY, vx: Math.cos(particleAngle) * pSpeed + (isWalking && !dState.isEating ? dState.direction * 0.5 : 0), vy: Math.sin(particleAngle) * pSpeed + (Math.random() - 0.5) * 1.0, color: Math.random() > 0.45 ? selectedFlame.primary : selectedFlame.secondary, size: 2.2 + Math.random() * 3, life: 0, maxLife: 24 + Math.random() * 16 });
+            }
+          }
+
+          snacksRef.current.forEach(sn => {
+            const sM = sn.type === 'apple' ? APPLE_FRAME : CAKE_FRAME; const snackSize = sn.size;
+            for (let r = 0; r < sM.length; r++) {
+              const rowStr = sM[r]; for (let c = 0; c < rowStr.length; c++) {
+                const char = rowStr[c]; if (char === '.') continue; let col = '#ef4444'; if (char === 'L') col = '#10b981'; else if (char === 'A') col = '#f43f5e'; else if (char === 'C') col = '#f59e0b'; else if (char === 'F') col = '#ffffff'; else if (char === 'W') col = '#ffedd5'; else if (char === 'M') col = '#ec4899';
+                ctx.fillStyle = col; ctx.fillRect(sn.x + (c - rowStr.length / 2) * snackSize, sn.y + (r - sM.length / 2) * snackSize, snackSize, snackSize);
+              }
+            }
+          });
+
+          sparksRef.current.forEach(p => { p.life++; p.vy += flameGravity; p.x += p.vx; p.y += p.vy; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, Math.max(0.8, p.size * (1 - p.life / p.maxLife)), Math.max(0.8, p.size * (1 - p.life / p.maxLife))); });
+          sparksRef.current = sparksRef.current.filter(p => p.life < p.maxLife);
+
+          if (dState.speechBubble && dState.speechBubble.ticks > 0) {
+            dState.speechBubble.ticks--; ctx.font = 'bold 8px system-ui'; const txt = dState.speechBubble.text; const txtW = ctx.measureText(txt).width;
+            const rx = (dState.x + dinoW / 2) - (txtW + 10) / 2; const ry = dState.y - 4 - 14;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.strokeStyle = selectedFlame.primary; ctx.lineWidth = 1; ctx.fillRect(rx, ry, txtW + 10, 14); ctx.strokeRect(rx, ry, txtW + 10, 14);
+            ctx.fillStyle = '#ffffff'; ctx.fillText(txt, rx + 5, ry + 10);
+          }
+          animId = requestAnimationFrame(renderLoop);
+        };
+        renderLoop(); return () => cancelAnimationFrame(animId);
+      }, [selectedSkin, selectedFlame, isWalking, isFiring]);
+
+      const handleCanvasClick = (e) => {
+        const rect = canvasRef.current.getBoundingClientRect(); const scaleX = 728 / rect.width; const scaleY = 90 / rect.height;
+        snacksRef.current.push({ id: Date.now(), type: Math.random() > 0.5 ? 'apple' : 'cake', x: (e.clientX - rect.left) * scaleX, y: ((e.clientY - rect.top) * scaleY) - 5, vy: 1, isGrounded: false, size: 2.8 });
+        getSynth().triggerEatSound();
+      };
+
+      return (
+        <div className="flex-center" style={{ minHeight: '100vh', padding: '16px', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at top, #0e1628, #040508, #020305)', pointerEvents: 'none' }}></div>
+          <div className="flex-center" style={{ gap: '16px', width: '100%', maxWidth: '760px', zIndex: 10 }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '728px', aspectRatio: '728/90', backgroundColor: '#090d16', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 0 40px rgba(0,0,0,0.7)' }}>
+              <canvas ref={canvasRef} width={728} height={90} onClick={handleCanvasClick} style={{ width: '100%', height: '100%', display: 'block', backgroundColor: '#070a11', cursor: 'crosshair' }} />
+              <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.05)', padding: '2px 4px', borderRadius: '4px', fontSize: '8px', fontFamily: 'monospace', color: '#a1a1aa' }}>
+                <span style={{ color: '#00f2ff', fontWeight: 'bold' }}>● 恐龍巡邏橫幅</span> | 已餵食: <span style={{ color: '#f43f5e', fontWeight: 'bold' }}>{consumedCount}</span>
+              </div>
+              <div style={{ position: 'absolute', top: '6px', right: '6px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <button onClick={(e) => { e.stopPropagation(); handleDropSnack('apple'); }} className="btn-action" style={{ backgroundColor: 'rgba(69,10,10,0.8)', border: '1px solid rgba(239,68,68,0.1)', color: '#fca5a5' }}><Icons.Apple />蘋果</button>
+                <button onClick={(e) => { e.stopPropagation(); handleDropSnack('cake'); }} className="btn-action" style={{ backgroundColor: 'rgba(131,24,67,0.8)', border: '1px solid rgba(244,63,94,0.1)', color: '#fbcfe8' }}><Icons.Sparkles />蛋糕</button>
+                <button onClick={(e) => { e.stopPropagation(); cycleSkin(); }} className="btn-action" style={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#818cf8', width: '20px', justifyContent: 'center' }} title="換外觀"><Icons.Palette /></button>
+                <button onClick={(e) => { e.stopPropagation(); cycleFlame(); }} className="btn-action" style={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#fb923c', width: '20px', justifyContent: 'center' }} title="換吐息"><Icons.Flame /></button>
+                <button onClick={(e) => { e.stopPropagation(); toggleSound(); }} className="btn-action" style={{ backgroundColor: soundEnabled ? 'rgba(6,78,59,0.8)' : '#0f172a', border: soundEnabled ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)', color: soundEnabled ? '#34d399' : '#a1a1aa' }}>{soundEnabled ? <Icons.Volume2 /> : <Icons.VolumeX />}{soundEnabled ? 'ON' : 'OFF'}</button>
+                <button onClick={(e) => { e.stopPropagation(); triggerReset(); }} className="btn-action" style={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#a1a1aa', width: '20px', justifyContent: 'center' }} title="重設"><Icons.RotateCcw /></button>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', fontFamily: 'monospace', opacity: 0.6, fontSize: '10px', color: '#71717a', letterSpacing: '0.1em' }}>
+              PIXEL DINO AMBIENT PATROL BANNER 728 x 90 SCREENPLAY
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const container = document.getElementById('root');
+    const reactRoot = window.ReactDOM.createRoot(container);
+    reactRoot.render(React.createElement(App));
+  </script>
+</body>
+</html>
