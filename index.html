@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pixel Dino Ambience Patrol</title>
+  <title>Pixel Dino Ambience Patrol (High-Res 2X)</title>
   <style>
     body {
       margin: 0; padding: 0; background-color: #05070d; overflow: hidden;
@@ -13,7 +13,7 @@
     .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
     
     .btn-action {
-      height: 20px; padding: 0 8px; border-radius: 4px; font-family: monospace; font-size: 10px;
+      height: 24px; padding: 0 10px; border-radius: 4px; font-family: monospace; font-size: 11px;
       cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px;
       border: 1px solid rgba(255,255,255,0.15); background-color: #0f172a; color: #a1a1aa;
     }
@@ -26,40 +26,33 @@
 </head>
 <body>
 
-  <div class="flex-center" style="min-height: 100vh; padding: 16px; position: relative;">
+  <div style="width: 100vw; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 4px;">
     <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at top, #0e1628, #040508, #020305); pointer-events: none;"></div>
     
-    <div class="flex-center" style="gap: 16px; width: 100%; max-width: 760px; z-index: 10;">
-      <div style="position: relative; width: 100%; max-width: 728px; aspectRatio: 728/90; background-color: #090d16; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.7);">
-        
-        <canvas id="dinoCanvas" width="728" height="90" style="width: 100%; height: 100%; display: block; background-color: #070a11; cursor: crosshair;"></canvas>
-        
-        <div style="position: absolute; top: 8px; left: 8px; background-color: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-family: monospace; color: #a1a1aa;">
-          <span style="color: #00f2ff; font-weight: bold;">● 恐龍巡邏橫幅</span> | 已餵食: <span id="eatCount" style="color: #f43f5e; font-weight: bold;">0</span>
-        </div>
-        
-        <div style="position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; align-items: center;">
-          <button id="btnApple" class="btn-action btn-apple">🍎 蘋果</button>
-          <button id="btnCake" class="btn-action btn-cake">✨ 蛋糕</button>
-          <button id="btnSkin" class="btn-action">🎨 外觀</button>
-          <button id="btnFlame" class="btn-action">🔥 吐息</button>
-          <button id="btnAudio" class="btn-action">🔇 音效: OFF</button>
-          <button id="btnReset" class="btn-action">🔄</button>
-        </div>
-
-        <div style="position: absolute; bottom: 4px; left: 8px; font-size: 8px; font-family: monospace; color: #52525b; pointer-events: none;">
-          點擊 Banner 任何草地或天空，都可以掉下點心餵食喔！
-        </div>
+    <div style="position: relative; width: 100%; max-width: 1456px; aspect-ratio: 1456/180; background-color: #090d16; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.7);">
+      
+      <canvas id="dinoCanvas" width="1456" height="180" style="width: 100%; height: 100%; display: block; background-color: #070a11; cursor: crosshair;"></canvas>
+      
+      <div style="position: absolute; top: 12px; left: 12px; background-color: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-family: monospace; color: #a1a1aa;">
+        <span style="color: #00f2ff; font-weight: bold;">● 恐龍巡邏橫幅 (2X 高清)</span> | 已餵食: <span id="eatCount" style="color: #f43f5e; font-weight: bold;">0</span>
       </div>
       
-      <div style="text-align: center; font-family: monospace; opacity: 0.6; font-size: 10px; color: #71717a; letter-spacing: 0.1em;">
-        PIXEL DINO AMBIENT PATROL BANNER 728 x 90 SCREENPLAY
+      <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; align-items: center;">
+        <button id="btnApple" class="btn-action btn-apple">🍎 蘋果</button>
+        <button id="btnCake" class="btn-action btn-cake">✨ 蛋糕</button>
+        <button id="btnSkin" class="btn-action">🎨 外觀</button>
+        <button id="btnFlame" class="btn-action">🔥 吐息</button>
+        <button id="btnAudio" class="btn-action">🔇 音效: OFF</button>
+        <button id="btnReset" class="btn-action">🔄</button>
+      </div>
+
+      <div style="position: absolute; bottom: 8px; left: 12px; font-size: 11px; font-family: monospace; color: #52525b; pointer-events: none;">
+        點擊橫幅任何草地或天空，都可以掉下點心餵食喔！
       </div>
     </div>
   </div>
 
   <script>
-    // 完整修復的 20 行精細像素矩陣資料
     const DINO_FRAMES = {
       idle: [
         [
@@ -161,22 +154,25 @@
     const ctx = canvas.getContext('2d');
     const synth = new RetroSynth();
 
+    // 2X 縮放因子微調
+    const scaleFactor = 4.2; 
+
     let consumedCount = 0; let skinIdx = 0; let flameIdx = 0; let soundOn = false;
     let snacks = []; let sparks = []; let trees = []; let stars = [];
-    let dino = { x: 220, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "點擊天空投下零食餵我！🦖", ticks: 150 } };
+    let dino = { x: 440, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "Looker Studio 高清巡邏中！🦖✨", ticks: 150 } };
 
-    for (let i = 0; i < 8; i++) { trees.push({ x: 60 + i * 90 + Math.random() * 20, heightScale: 0.85 + Math.random() * 0.3 }); }
-    for (let i = 0; i < 30; i++) { stars.push({ x: Math.random() * 728, y: Math.random() * 45, size: 0.8 + Math.random() * 1.5, alpha: Math.random(), blinkSpeed: 0.006 + Math.random() * 0.012 }); }
+    for (let i = 0; i < 8; i++) { trees.push({ x: 120 + i * 180 + Math.random() * 40, heightScale: 0.85 + Math.random() * 0.3 }); }
+    for (let i = 0; i < 40; i++) { stars.push({ x: Math.random() * 1456, y: Math.random() * 90, size: 1.5 + Math.random() * 2, alpha: Math.random(), blinkSpeed: 0.006 + Math.random() * 0.012 }); }
 
     function dropSnack(type, customX) {
-      snacks.push({ id: Date.now(), type, x: customX || (80 + Math.random() * 568), y: -10, vy: 1, isGrounded: false, size: 2.8 });
+      snacks.push({ id: Date.now(), type, x: customX || (160 + Math.random() * 1136), y: -20, vy: 2, isGrounded: false, size: 5.6 });
     }
 
     document.getElementById('btnApple').onclick = (e) => { e.stopPropagation(); dropSnack('apple'); };
     document.getElementById('btnCake').onclick = (e) => { e.stopPropagation(); dropSnack('cake'); };
     document.getElementById('btnSkin').onclick = (e) => { e.stopPropagation(); skinIdx = (skinIdx + 1) % DINO_SKINS.length; synth.triggerEatSound(); };
     document.getElementById('btnFlame').onclick = (e) => { e.stopPropagation(); flameIdx = (flameIdx + 1) % FLAME_PRESETS.length; synth.triggerEatSound(); };
-    document.getElementById('btnReset').onclick = (e) => { e.stopPropagation(); snacks = []; sparks = []; dino.x = 220; dino.direction = 1; dino.speechBubble = { text: "重置完畢！", ticks: 100 }; synth.triggerRoar(); };
+    document.getElementById('btnReset').onclick = (e) => { e.stopPropagation(); snacks = []; sparks = []; dino.x = 440; dino.direction = 1; dino.speechBubble = { text: "重置完畢！", ticks: 100 }; synth.triggerRoar(); };
     
     document.getElementById('btnAudio').onclick = (e) => {
       e.stopPropagation(); soundOn = !soundOn; synth.setMute(!soundOn);
@@ -187,7 +183,7 @@
 
     canvas.onclick = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const clickX = (e.clientX - rect.left) * (728 / rect.width);
+      const clickX = (e.clientX - rect.left) * (1456 / rect.width);
       dropSnack(Math.random() > 0.5 ? 'apple' : 'cake', clickX);
       synth.triggerEatSound();
     };
@@ -195,24 +191,24 @@
     let frameCount = 0;
     function gameLoop() {
       frameCount++;
-      const gY = 74; 
+      const gY = 148; 
       const currentSkin = DINO_SKINS[skinIdx];
       const currentFlame = FLAME_PRESETS[flameIdx];
 
-      ctx.fillStyle = '#0a0d17'; ctx.fillRect(0, 0, 728, 90);
+      ctx.fillStyle = '#0a0d17'; ctx.fillRect(0, 0, 1456, 180);
       stars.forEach(star => {
         star.alpha += star.blinkSpeed; if (star.alpha > 1 || star.alpha < 0.2) star.blinkSpeed = -star.blinkSpeed;
         ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`; ctx.fillRect(star.x, star.y, star.size, star.size);
       });
 
-      ctx.fillStyle = '#111827'; ctx.fillRect(0, gY, 728, 16);
-      ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(728, gY); ctx.stroke();
+      ctx.fillStyle = '#111827'; ctx.fillRect(0, gY, 1456, 32);
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(1456, gY); ctx.stroke();
 
       trees.forEach(t => {
-        const tScale = 1.4 * t.heightScale;
-        const sway = Math.sin(frameCount * 0.03 + t.x * 0.1) * 0.8;
-        const tLeftX = t.x - (10 * tScale) / 2 + sway; const tTopY = gY - 7 * tScale + 1;
+        const tScale = 2.8 * t.heightScale;
+        const sway = Math.sin(frameCount * 0.03 + t.x * 0.1) * 1.6;
+        const tLeftX = t.x - (10 * tScale) / 2 + sway; const tTopY = gY - 7 * tScale + 2;
         for (let r = 0; r < 7; r++) {
           for (let c = 0; c < 10; c++) {
             const char = TREE_FRAMES[r][c]; if (char === '.') continue;
@@ -224,38 +220,38 @@
 
       snacks.forEach(sn => {
         if (!sn.isGrounded) {
-          sn.vy += 0.22; sn.y += sn.vy;
-          if (sn.y >= gY - 6) { sn.y = gY - 6; sn.vy = -sn.vy * 0.3; if (Math.abs(sn.vy) < 0.4) sn.isGrounded = true; }
+          sn.vy += 0.44; sn.y += sn.vy;
+          if (sn.y >= gY - 12) { sn.y = gY - 12; sn.vy = -sn.vy * 0.3; if (Math.abs(sn.vy) < 0.8) sn.isGrounded = true; }
         }
       });
 
-      const dinoW = 24 * 2.1; const dinoH = 20 * 2.1;
-      dino.y = gY - dinoH + 2;
+      const dinoW = 24 * scaleFactor; const dinoH = 20 * scaleFactor;
+      dino.y = gY - dinoH + 4;
 
       if (dino.isEating) {
         dino.eatingTicks++; if (dino.eatingTicks > 45) { dino.isEating = false; dino.eatingTicks = 0; }
       } else {
         dino.ticks++;
         if (dino.ticks % 6 === 0) dino.frameIndex = (dino.frameIndex + 1) % 2;
-        dino.x += dino.direction * 1.2;
+        dino.x += dino.direction * 2.4;
 
         let foodToChase = null; let shortestDist = 99999;
         snacks.forEach(sn => { const dx = sn.x - (dino.x + dinoW / 2); if (Math.abs(dx) < shortestDist) { shortestDist = Math.abs(dx); foodToChase = sn; } });
-        if (foodToChase && shortestDist < 300) {
+        if (foodToChase && shortestDist < 600) {
           dino.direction = foodToChase.x > (dino.x + dinoW / 2) ? 1 : -1;
         } else {
-          if (dino.x > 728 - dinoW - 20 && dino.direction === 1) dino.direction = -1;
-          else if (dino.x < 20 && dino.direction === -1) dino.direction = 1;
+          if (dino.x > 1456 - dinoW - 40 && dino.direction === 1) dino.direction = -1;
+          else if (dino.x < 40 && dino.direction === -1) dino.direction = 1;
         }
       }
 
       snacks = snacks.filter(sn => {
-        if (Math.abs(sn.x - (dino.x + dinoW / 2)) < 24 && sn.y > gY - 14) {
+        if (Math.abs(sn.x - (dino.x + dinoW / 2)) < 48 && sn.y > gY - 28) {
           dino.isEating = true; dino.eatingTicks = 0; consumedCount++;
           document.getElementById('eatCount').innerText = consumedCount;
           dino.speechBubble = { text: ["好吃！ ♥", "美味 ✨", "讚啦 🍰", "嗷嗚 🍎"][Math.floor(Math.random() * 4)], ticks: 80 };
           synth.triggerEatSound();
-          for (let s = 0; s < 8; s++) { sparks.push({ x: sn.x, y: sn.y, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 1) * 3, color: sn.type === 'apple' ? '#ef4444' : '#fb7185', size: 2, life: 0, maxLife: 20 }); }
+          for (let s = 0; s < 8; s++) { sparks.push({ x: sn.x, y: sn.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 1) * 6, color: sn.type === 'apple' ? '#ef4444' : '#fb7185', size: 4, life: 0, maxLife: 20 }); }
           return false;
         }
         return true;
@@ -275,14 +271,14 @@
           else if (char === 'E') pixelColor = currentSkin.eye;
           else if (char === 'M') pixelColor = '#ffd200';
 
-          ctx.fillStyle = pixelColor; ctx.fillRect(dino.x + drawCol * 2.1, dino.y + r * 2.1, 2.1, 2.1);
+          ctx.fillStyle = pixelColor; ctx.fillRect(dino.x + drawCol * scaleFactor, dino.y + r * scaleFactor, scaleFactor, scaleFactor);
         }
       }
 
-      const realMouthX = dino.x + (isFacingRight ? 18.5 : 5.5) * 2.1; const realMouthY = dino.y + 5.2 * 2.1;
+      const realMouthX = dino.x + (isFacingRight ? 18.5 : 5.5) * scaleFactor; const realMouthY = dino.y + 5.2 * scaleFactor;
       for (let i = 0; i < 3; i++) {
-        const angle = (isFacingRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.22; const pSpeed = 5.2 * (0.8 + Math.random() * 0.4);
-        sparks.push({ x: realMouthX, y: realMouthY, vx: Math.cos(angle) * pSpeed + dino.direction * 0.5, vy: Math.sin(angle) * pSpeed + (Math.random() - 0.5) * 1.0, color: Math.random() > 0.45 ? currentFlame.primary : currentFlame.secondary, size: 2.2 + Math.random() * 3, life: 0, maxLife: 30 });
+        const angle = (isFacingRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.22; const pSpeed = 10.4 * (0.8 + Math.random() * 0.4);
+        sparks.push({ x: realMouthX, y: realMouthY, vx: Math.cos(angle) * pSpeed + dino.direction * 1.0, vy: Math.sin(angle) * pSpeed + (Math.random() - 0.5) * 2.0, color: Math.random() > 0.45 ? currentFlame.primary : currentFlame.secondary, size: 4.4 + Math.random() * 6, life: 0, maxLife: 30 });
       }
 
       snacks.forEach(sn => {
@@ -291,24 +287,24 @@
           for (let c = 0; c < sM[r].length; c++) {
             const char = sM[r][c]; if (char === '.') continue;
             let col = '#ef4444'; if (char === 'L') col = '#10b981'; else if (char === 'C') col = '#f59e0b'; else if (char === 'W') col = '#ffedd5'; else if (char === 'M') col = '#ec4899';
-            ctx.fillRect(sn.x + (c - sM[r].length / 2) * sn.size, sn.y + (r - sM.length / 2) * sn.size, sn.size, sn.size);
+            ctx.fillRect(sn.x + (c - sM[r].length / 2) * (sn.size / 2), sn.y + (r - sM.length / 2) * (sn.size / 2), sn.size / 2, sn.size / 2);
           }
         }
       });
 
       sparks.forEach(p => {
-        p.life++; p.vy += -0.02; p.x += p.vx; p.y += p.vy;
-        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, Math.max(0.8, p.size * (1 - p.life / p.maxLife)), Math.max(0.8, p.size * (1 - p.life / p.maxLife)));
+        p.life++; p.vy += -0.04; p.x += p.vx; p.y += p.vy;
+        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, Math.max(1.6, p.size * (1 - p.life / p.maxLife)), Math.max(1.6, p.size * (1 - p.life / p.maxLife)));
       });
       sparks = sparks.filter(p => p.life < p.maxLife);
 
       if (dino.speechBubble && dino.speechBubble.ticks > 0) {
-        dino.speechBubble.ticks--; ctx.font = 'bold 9px system-ui';
+        dino.speechBubble.ticks--; ctx.font = 'bold 16px system-ui';
         const txt = dino.speechBubble.text; const txtW = ctx.measureText(txt).width;
-        const rx = (dino.x + dinoW / 2) - (txtW + 10) / 2; const ry = dino.y - 18;
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.strokeStyle = currentFlame.primary; ctx.lineWidth = 1;
-        ctx.fillRect(rx, ry, txtW + 10, 14); ctx.strokeRect(rx, ry, txtW + 10, 14);
-        ctx.fillStyle = '#ffffff'; ctx.fillText(txt, rx + 5, ry + 10);
+        const rx = (dino.x + dinoW / 2) - (txtW + 20) / 2; const ry = dino.y - 32;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.strokeStyle = currentFlame.primary; ctx.lineWidth = 2;
+        ctx.fillRect(rx, ry, txtW + 20, 28); ctx.strokeRect(rx, ry, txtW + 20, 28);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(txt, rx + 10, ry + 20);
       }
 
       requestAnimationFrame(gameLoop);
