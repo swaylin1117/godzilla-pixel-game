@@ -1,42 +1,208 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="0;url=https://ais-dev-bqmxrkus73wuzakai7wwh6-38026867895.asia-northeast1.run.app/">
-    <title>正在導向廣告儀表板...</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f6f8fa;
-            color: #24292e;
-        }
-        .container { text-align: center; padding: 20px; }
-        a { color: #0366d6; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Dino Ambience Patrol</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* 移除網頁預設滾動條與選取藍框 */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #05070d;
+      overflow: hidden;
+    }
+    .select-none {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>正在導向至廣告儀表板網站</h2>
-    <p>頁面正在自動跳轉，如果沒有反應，請點擊下方連結：</p>
-    <p>
-        <a href="https://ais-dev-bqmxrkus73wuzakai7wwh6-38026867895.asia-northeast1.run.app/">
-            點擊此處前往網站
-        </a>
-    </p>
-</div>
+  <div id="root"></div>
 
-<script>
-    // 使用 JavaScript 立即進行頁面重導向
-    window.location.href = "https://ais-dev-bqmxrkus73wuzakai7wwh6-38026867895.asia-northeast1.run.app/";
-</script>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-</body>
-</html>
+    // ==========================================
+    // 1. 內嵌原 DInosaurPixelData.ts 的點陣矩陣資料
+    // ==========================================
+    const DINO_FRAMES = {
+      idle: [
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ]
+      ],
+      walk: [
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C...........", "............C...........", "...........CC...........", "........................"
+        ],
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "...............C........", "...............C........", "..............CC........", "........................"
+        ]
+      ],
+      fire: [
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...",
+          "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
+          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ],
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...",
+          "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
+          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ]
+      ]
+    };
+
+    const TREE_FRAMES = {
+      healthy: [
+        "....TT....", "...TTTT...", "..TTTTTT..", ".TTTTTTTT.", "TTTTTTTTTT", "....HH....", "....HH...."
+      ]
+    };
+
+    const APPLE_FRAME = ["..LL..", ".AAAA.", "AAAAAA", "AAAAAA", ".AAAA.", "..AA.."];
+    const CAKE_FRAME  = ["..FF..", ".CWCW.", "MMMMM", "MMMMM"];
+
+    // ==========================================
+    // 2. 內嵌原 RetroSynth.ts 的 Web Audio API 音效大師
+    // ==========================================
+    class RetroSynth {
+      constructor() {
+        this.ctx = null;
+        this.muted = true;
+        this.sizzleOsc = null;
+        this.sizzleGain = null;
+      }
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      setMute(m) {
+        this.muted = m;
+        if (m) this.stopFireSizzle();
+      }
+      triggerRoar() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(90, now);
+        osc.frequency.linearRampToValueAtTime(40, now + 0.4);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+      triggerEatSound() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.setValueAtTime(300, now + 0.08);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+      startFireSizzle() {
+        if (this.muted || this.sizzleOsc) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          this.sizzleOsc = this.ctx.createOscillator();
+          this.sizzleGain = this.ctx.createGain();
+          this.sizzleOsc.type = 'square';
+          this.sizzleOsc.frequency.setValueAtTime(220, now);
+          this.sizzleGain.gain.setValueAtTime(0.03, now);
+          
+          // 簡易低頻震盪調變做出劈啪聲
+          const lfo = this.ctx.createOscillator();
+          const lfoGain = this.ctx.createGain();
+          lfo.type = 'sawtooth';
+          lfo.frequency.setValueAtTime(35, now);
+          lfoGain.gain.setValueAtTime(100, now);
+          lfo.connect(lfoGain);
+          lfoGain.connect(this.sizzleOsc.frequency);
+          
+          this.sizzleOsc.connect(this.sizzleGain);
+          this.sizzleGain.connect(this.ctx.destination);
+          
+          lfo.start(now);
+          this.sizzleOsc.start(now);
+          this.sizzleOsc.lfoRef = lfo;
+        } catch(e){}
+      }
+      stopFireSizzle() {
+        if (this.sizzleOsc) {
+          try {
+            this.sizzleOsc.stop();
+            this.sizzleOsc.lfoRef.stop();
+          } catch(e){}
+          this.sizzleOsc = null;
+          this.sizzleGain = null;
+        }
+      }
+    }
+
+    // ==========================================
+    // 3. 預設佈景與吐息參數設定
+    // ==========================================
+    const DINO_SKINS = [
+      { id: 'cyber', name: 'Cyber Neon', primary: '#0df', secondary: '#005f73', accent: '#f72585', plates: '#7209b7', eye: '#ffffff', description: 'A glowing radioactive baby monster fueled by 80s cyber waves.' },
+      { id: 'gigan', name: 'Emerald Rex', primary: '#10b981', secondary: '#a7f3d0', accent: '#fbbf24', plates: '#06b6d4', eye: '#ef4444', description: 'The ancient, legendary atomic protector of modern digital islands.' },
+      { id: 'magma', name: 'Volcanic Red', primary: '#ef4444', secondary: '#fcd34d', accent: '#ffffff', plates: '#b91c1c', eye: '#f59e0b', description: 'An explosive magma lizard summoned from the high-temperature core.' },
+      { id: 'cosmic', name: 'Cosmic Star', primary: '#8b5cf6', secondary: '#4c1d95', plates: '#f59e0b', accent: '#ec4899', eye: '#06b6d4', description: 'A mystical star-born lizard glowing with cosmic nebular waves.' }
+    ];
+
+    const FLAME_PRESETS = [
+      { id: 'plasma', name: 'Teal Plasma', primary: '#06b6d4', secondary: '#3b82f6', spark: '#ffffff' },
+      { id: 'thermo', name: 'Hellfire', primary: '#f97316', secondary: '#facc15', spark: '#fef08a' },
+      { id: 'toxic', name: 'Acid Mist', primary: '#22c55e', secondary: '#15803d', spark: '#a3e635' },
+      { id: 'star', name: 'Starlight', primary: '#ec4899', secondary: '#8b5cf6', spark: '#fdf2f8' }
+    ];
+
+    // ==========================================
+    // 4. SVG 向量圖示（替代 Lucide React 套件）
+    // ==========================================
+    const Icons = {
+      Apple: () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2v4"/></svg>,
+      Sparkles: () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>,
+      Palette: () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.63-.77 1.63-1.7 0-.42-.15-.81-.41-1.14-.26-.33-.41-.74-.41-1.19 0-.92.77-1.63 1.7-1.63h1.3c4.73 0 8.78-4.04 8.78-8.78C22 5.31 17.5 2 12 2z"/></svg>,
+      Flame: () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
+      Volume2: () => <svg width="10" height="10" viewBox="0
