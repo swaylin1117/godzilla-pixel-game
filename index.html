@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pixel Dino Looker Studio Full-Width</title>
+  <title>True Godzilla Ambience Patrol</title>
   <style>
-    /* 強制拔除所有邊距，讓網頁原生就是滿版 */
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%; background-color: #05070d; overflow: hidden;
       color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif;
@@ -34,7 +33,7 @@
       <canvas id="dinoCanvas" style="width: 100%; height: 100%; display: block; background-color: #070a11; cursor: crosshair;"></canvas>
       
       <div style="position: absolute; top: 10px; left: 12px; background-color: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; color: #a1a1aa;">
-        <span style="color: #00f2ff; font-weight: bold;">● 恐龍巡邏橫幅</span> | 已餵食: <span id="eatCount" style="color: #f43f5e; font-weight: bold;">0</span>
+        <span style="color: #00f2ff; font-weight: bold;">● 哥吉拉巡邏橫幅</span> | 已餵食: <span id="eatCount" style="color: #f43f5e; font-weight: bold;">0</span>
       </div>
       
       <div style="position: absolute; top: 8px; right: 10px; display: flex; gap: 6px; align-items: center;">
@@ -53,46 +52,48 @@
   </div>
 
   <script>
+    // 基因重組：完全重刻大怪獸之王的像素矩陣 (24寬x20高)
+    // 增加尾巴厚度(左側)與嘴部厚度(右側)，徹底拔除小鳥特徵
     const DINO_FRAMES = {
       idle: [
         [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+          "........................", "..........BBBBB.........", "........BBBBBBBBB.......", ".......BBBBBBBBSEB......",
+          ".......BBBBBBBBBBB......", "........BBBBBBBBBB......", ".......BBBBBBBBBBB......", "..B...BBBBBBBBBBBB......",
+          "..BB.BBBBBBBBBBBBB......", "..BBBBBBBBBBBBBBBB......", "...BBBBBBBBBBBBBBB......", "....BBBBBBBBBBBBBB......",
+          ".....BBBBBBBBBBBBB......", "......BBBBBBBBBBBB......", ".......BBBBBBBBBBB......", "........BBBBBBBBB.......",
+          "........BBBB..BBBB......", "........CCC....CCC......", ".......CCCC....CCCC.....", "........................"
         ]
       ],
       walk: [
         [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C...........", "............C...........", "...........CC...........", "........................"
+          "........................", "..........BBBBB.........", "........BBBBBBBBB.......", ".......BBBBBBBBSEB......",
+          ".......BBBBBBBBBBB......", "........BBBBBBBBBB......", ".......BBBBBBBBBBB......", "..B...BBBBBBBBBBBB......",
+          "..BB.BBBBBBBBBBBBB......", "..BBBBBBBBBBBBBBBB......", "...BBBBBBBBBBBBBBB......", "....BBBBBBBBBBBBBB......",
+          ".....BBBBBBBBBBBBB......", "......BBBBBBBBBBBB......", ".......BBBBBBBBBBB......", "........BBBBBBBBB.......",
+          "........BBBB............", "........CCC.............", ".......CCCC.............", "........................"
         ],
         [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
-          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
-          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "...............C........", "...............C........", "..............CC........", "........................"
+          "........................", "..........BBBBB.........", "........BBBBBBBBB.......", ".......BBBBBBBBSEB......",
+          ".......BBBBBBBBBBB......", "........BBBBBBBBBB......", ".......BBBBBBBBBBB......", "..B...BBBBBBBBBBBB......",
+          "..BB.BBBBBBBBBBBBB......", "..BBBBBBBBBBBBBBBB......", "...BBBBBBBBBBBBBBB......", "....BBBBBBBBBBBBBB......",
+          ".....BBBBBBBBBBBBB......", "......BBBBBBBBBBBB......", ".......BBBBBBBBBBB......", "........BBBBBBBBB.......",
+          "..............BBBB......", "..............CCC.......", ".............CCCC.......", "........................"
         ]
       ],
       fire: [
         [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...",
-          "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
-          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+          "........................", "..........BBBBB.........", "........BBBBBBBBB.......", ".......BBBBBBBBSEB..MM..",
+          ".......BBBBBBBBBBB.MM...", "........BBBBBBBBMMMM....", ".......BBSSBBBBBBB......", "..B...BBSSBBBBBBBB......",
+          "..BB.BSSBBBBBBBBBB......", "..BBBBSSBBBBBBBBBB......", "...BBBBBBBBBBBBBBB......", "....BBBBBBBBBBBBBB......",
+          ".....BBBBBBBBBBBBB......", "......BBBBBBBBBBBB......", ".......BBBBBBBBBBB......", "........BBBBBBBBB.......",
+          "........BBBB..BBBB......", "........CCC....CCC......", ".......CCCC....CCCC.....", "........................"
         ],
         [
-          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...",
-          "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
-          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
-          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
-          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+          "........................", "..........BBBBB.........", "........BBBBBBBBB.......", ".......BBBBBBBBSEBB.MMM.",
+          ".......BBBBBBBBBBBBMMM..", "........BBBBBBBBMMMM....", ".......BBSSBBBBBBB......", "..B...BBSSBBBBBBBB......",
+          "..BB.BSSBBBBBBBBBB......", "..BBBBSSBBBBBBBBBB......", "...BBBBBBBBBBBBBBB......", "....BBBBBBBBBBBBBB......",
+          ".....BBBBBBBBBBBBB......", "......BBBBBBBBBBBB......", ".......BBBBBBBBBBB......", "........BBBBBBBBB.......",
+          "........BBBB..BBBB......", "........CCC....CCC......", ".......CCCC....CCCC.....", "........................"
         ]
       ]
     };
@@ -104,8 +105,8 @@
     const CAKE_FRAME  = ["..FF..", ".CWCW.", "MMMMM", "MMMMM"];
 
     const DINO_SKINS = [
-      { id: 'cyber', name: 'Cyber Neon', primary: '#0df', secondary: '#005f73', accent: '#f72585', plates: '#7209b7', eye: '#ffffff' },
       { id: 'gigan', name: 'Emerald Rex', primary: '#10b981', secondary: '#a7f3d0', accent: '#fbbf24', plates: '#06b6d4', eye: '#ef4444' },
+      { id: 'cyber', name: 'Cyber Neon', primary: '#0df', secondary: '#005f73', accent: '#f72585', plates: '#7209b7', eye: '#ffffff' },
       { id: 'magma', name: 'Volcanic Red', primary: '#ef4444', secondary: '#fcd34d', accent: '#ffffff', plates: '#b91c1c', eye: '#f59e0b' },
       { id: 'cosmic', name: 'Cosmic Star', primary: '#8b5cf6', secondary: '#4c1d95', plates: '#f59e0b', accent: '#ec4899', eye: '#06b6d4' }
     ];
@@ -124,14 +125,14 @@
       triggerRoar() {
         if (this.muted) return; this.init(); const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now); osc.frequency.linearRampToValueAtTime(40, now + 0.4);
-        gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.4);
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, now); osc.frequency.linearRampToValueAtTime(35, now + 0.5);
+        gain.gain.setValueAtTime(0.25, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.5);
       }
       triggerEatSound() {
         if (this.muted) return; this.init(); const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-        osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.setValueAtTime(300, now + 0.08);
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(130, now); osc.frequency.setValueAtTime(260, now + 0.08);
         gain.gain.setValueAtTime(0.12, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
         osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.15);
       }
@@ -139,9 +140,9 @@
         if (this.muted || this.sizzleOsc) return; this.init();
         try {
           const now = this.ctx.currentTime; this.sizzleOsc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
-          this.sizzleOsc.type = 'square'; this.sizzleOsc.frequency.setValueAtTime(220, now); gain.gain.setValueAtTime(0.02, now);
+          this.sizzleOsc.type = 'square'; this.sizzleOsc.frequency.setValueAtTime(180, now); gain.gain.setValueAtTime(0.02, now);
           const lfo = this.ctx.createOscillator(); const lfoGain = this.ctx.createGain();
-          lfo.type = 'sawtooth'; lfo.frequency.setValueAtTime(35, now); lfoGain.gain.setValueAtTime(100, now);
+          lfo.type = 'sawtooth'; lfo.frequency.setValueAtTime(30, now); lfoGain.gain.setValueAtTime(120, now);
           lfo.connect(lfoGain); lfoGain.connect(this.sizzleOsc.frequency);
           this.sizzleOsc.connect(gain); gain.connect(this.ctx.destination);
           lfo.start(now); this.sizzleOsc.start(now); this.sizzleOsc.lfoRef = lfo;
@@ -156,18 +157,14 @@
 
     let consumedCount = 0; let skinIdx = 0; let flameIdx = 0; let soundOn = false;
     let snacks = []; let sparks = []; let trees = []; let stars = [];
-    let dino = { x: 200, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "Looker Studio 滿版巡邏中！🦖🔥", ticks: 150 } };
+    let dino = { x: 200, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "怪獸之王真身降臨！吼！🦖🔥", ticks: 150 } };
 
-    // 動態監聽 Looker Studio 元件大小
     function resizeCanvas() {
       canvas.width = canvas.clientWidth;
       canvas.height = canvas.clientHeight;
-      
-      // 根據高度動態計算像素粒子縮放大小，確保完美比例
       const currentHeight = canvas.height;
       window.scaleFactor = (currentHeight / 90) * 2.1; 
       
-      // 重新產布背景裝飾物
       if (trees.length === 0) {
         for (let i = 0; i < 8; i++) { trees.push({ x: 100 + i * (canvas.width / 8) + Math.random() * 20, heightScale: 0.85 + Math.random() * 0.3 }); }
         for (let i = 0; i < 40; i++) { stars.push({ x: Math.random() * canvas.width, y: Math.random() * (canvas.height * 0.5), size: 1.5 + Math.random() * 2, alpha: Math.random(), blinkSpeed: 0.006 + Math.random() * 0.012 }); }
@@ -185,7 +182,7 @@
     document.getElementById('btnCake').onclick = (e) => { e.stopPropagation(); dropSnack('cake'); };
     document.getElementById('btnSkin').onclick = (e) => { e.stopPropagation(); skinIdx = (skinIdx + 1) % DINO_SKINS.length; synth.triggerEatSound(); };
     document.getElementById('btnFlame').onclick = (e) => { e.stopPropagation(); flameIdx = (flameIdx + 1) % FLAME_PRESETS.length; synth.triggerEatSound(); };
-    document.getElementById('btnReset').onclick = (e) => { e.stopPropagation(); snacks = []; sparks = []; dino.x = 200; dino.direction = 1; dino.speechBubble = { text: "重置完畢！", ticks: 100 }; synth.triggerRoar(); };
+    document.getElementById('btnReset').onclick = (e) => { e.stopPropagation(); snacks = []; sparks = []; dino.x = 200; dino.direction = 1; dino.speechBubble = { text: "正宗哥吉拉歸位！", ticks: 100 }; synth.triggerRoar(); };
     
     document.getElementById('btnAudio').onclick = (e) => {
       e.stopPropagation(); soundOn = !soundOn; synth.setMute(!soundOn);
@@ -249,7 +246,7 @@
       } else {
         dino.ticks++;
         if (dino.ticks % 6 === 0) dino.frameIndex = (dino.frameIndex + 1) % 2;
-        dino.x += dino.direction * (sF * 0.6);
+        dino.x += dino.direction * (sF * 0.5);
 
         let foodToChase = null; let shortestDist = 99999;
         snacks.forEach(sn => { const dx = sn.x - (dino.x + dinoW / 2); if (Math.abs(dx) < shortestDist) { shortestDist = Math.abs(dx); foodToChase = sn; } });
@@ -265,7 +262,7 @@
         if (Math.abs(sn.x - (dino.x + dinoW / 2)) < (dinoW * 0.4) && sn.y > gY - (dinoH * 0.5)) {
           dino.isEating = true; dino.eatingTicks = 0; consumedCount++;
           document.getElementById('eatCount').innerText = consumedCount;
-          dino.speechBubble = { text: ["好吃！ ♥", "美味 ✨", "讚啦 🍰", "嗷嗚 🍎"][Math.floor(Math.random() * 4)], ticks: 80 };
+          dino.speechBubble = { text: ["吼！ ♥", "美味 ✨", "讚啦 🍰", "嗷嗚 🍎"][Math.floor(Math.random() * 4)], ticks: 80 };
           synth.triggerEatSound();
           for (let s = 0; s < 8; s++) { sparks.push({ x: sn.x, y: sn.y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 1) * 4, color: sn.type === 'apple' ? '#ef4444' : '#fb7185', size: sF, life: 0, maxLife: 20 }); }
           return false;
@@ -280,6 +277,8 @@
       for (let r = 0; r < 20; r++) {
         for (let c = 0; c < 24; c++) {
           const char = activeMatrix[r][c]; if (char === '.') continue;
+          
+          // 修正面向：確保尾巴永遠在後、大嘴永遠在前
           const drawCol = isFacingRight ? c : (23 - c);
           let pixelColor = currentSkin.primary;
           if (char === 'B') pixelColor = currentSkin.secondary;
@@ -291,7 +290,9 @@
         }
       }
 
-      const realMouthX = dino.x + (isFacingRight ? 18.5 : 5.5) * sF; const realMouthY = dino.y + 5.2 * sF;
+      // 發射源定位調整：對齊更厚實的怪獸巨嘴
+      const mouthLocalX = isFacingRight ? 20.5 : 3.5;
+      const realMouthX = dino.x + mouthLocalX * sF; const realMouthY = dino.y + 4.5 * sF;
       for (let i = 0; i < 2; i++) {
         const angle = (isFacingRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.25; const pSpeed = (sF * 2.5) * (0.8 + Math.random() * 0.4);
         sparks.push({ x: realMouthX, y: realMouthY, vx: Math.cos(angle) * pSpeed + dino.direction * 0.5, vy: Math.sin(angle) * pSpeed + (Math.random() - 0.5) * 1.0, color: Math.random() > 0.45 ? currentFlame.primary : currentFlame.secondary, size: sF * 1.2, life: 0, maxLife: 25 });
