@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pixel Dino Ambience Patrol</title>
   <style>
-    /* 移除所有外部 CDN，全用標準 CSS 鋪底 */
     body {
       margin: 0; padding: 0; background-color: #05070d; overflow: hidden;
       color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif;
@@ -13,7 +12,6 @@
     .select-none { user-select: none; -webkit-user-select: none; }
     .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
     
-    /* 按鈕樣式自訂，擺脫對 Tailwind 的依賴 */
     .btn-action {
       height: 20px; padding: 0 8px; border-radius: 4px; font-family: monospace; font-size: 10px;
       cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px;
@@ -31,8 +29,8 @@
   <div class="flex-center" style="min-height: 100vh; padding: 16px; position: relative;">
     <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at top, #0e1628, #040508, #020305); pointer-events: none;"></div>
     
-    <div class="flex-center" style="gap: 16px; width: 100%; maxWidth: 760px; z-index: 10;">
-      <div style="position: relative; width: 100%; max-width: 728px; aspect-ratio: 728/90; background-color: #090d16; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.7);">
+    <div class="flex-center" style="gap: 16px; width: 100%; max-width: 760px; z-index: 10;">
+      <div style="position: relative; width: 100%; max-width: 728px; aspectRatio: 728/90; background-color: #090d16; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.7);">
         
         <canvas id="dinoCanvas" width="728" height="90" style="width: 100%; height: 100%; display: block; background-color: #070a11; cursor: crosshair;"></canvas>
         
@@ -43,10 +41,10 @@
         <div style="position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; align-items: center;">
           <button id="btnApple" class="btn-action btn-apple">🍎 蘋果</button>
           <button id="btnCake" class="btn-action btn-cake">✨ 蛋糕</button>
-          <button id="btnSkin" class="btn-action" title="換外觀">🎨 外觀</button>
-          <button id="btnFlame" class="btn-action" title="換吐息">🔥 吐息</button>
+          <button id="btnSkin" class="btn-action">🎨 外觀</button>
+          <button id="btnFlame" class="btn-action">🔥 吐息</button>
           <button id="btnAudio" class="btn-action">🔇 音效: OFF</button>
-          <button id="btnReset" class="btn-action" title="重設">🔄</button>
+          <button id="btnReset" class="btn-action">🔄</button>
         </div>
 
         <div style="position: absolute; bottom: 4px; left: 8px; font-size: 8px; font-family: monospace; color: #52525b; pointer-events: none;">
@@ -61,22 +59,54 @@
   </div>
 
   <script>
-    // ==========================================
-    // 1. 恐龍像素矩陣資料
-    // ==========================================
+    // 完整修復的 20 行精細像素矩陣資料
     const DINO_FRAMES = {
-      idle: [["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"]],
+      idle: [
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ]
+      ],
       walk: [
-        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C...........", "............C...........", "...........CC...........", "........................"],
-        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......", "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "...............C........", "...............C........", "..............CC........", "........................"]
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C...........", "............C...........", "...........CC...........", "........................"
+        ],
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB.......", "...........BBBBBB.......",
+          "...........BBBB.........", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....", "........BBBBBBBBBBBB....",
+          ".........BBBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "...............C........", "...............C........", "..............CC........", "........................"
+        ]
       ],
       fire: [
-        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...", "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....", ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"],
-        ["............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...", "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...", ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....", ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......", "............C..C........", "............C..C........", "...........CC..CC.......", "........................"]
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB...MM..", "...........BBBBBB..MM...",
+          "...........BBBB...MM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
+          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ],
+        [
+          "............BBBB........", "...........BBBBBB.......", "...........BBSEBB..MMM..", "...........BBBBBB.MMM...",
+          "...........BBBB..MMM....", "..........BBBBBBBBB.....", ".........BBBBBBBBBBBBB..", ".........BBBBBBBBBBBB...",
+          ".........BBSSBBBBBBB....", "........BBSSBBBBBBBB....", "........BSSBBBBBBBBB....", "........BSSBBBBBBBBB....",
+          ".........SSBBBBBBBBB....", "..........BBBBBBBBBB....", "...........BBBBBBBB.....", "............BBBBBB......",
+          "............C..C........", "............C..C........", "...........CC..CC.......", "........................"
+        ]
       ]
     };
 
-    const TREE_FRAMES = ["....TT....", "...TTTT...", "..TTTTTT..", ".TTTTTTTT.", "TTTTTTTTTT", "....HH....", "....HH...."];
+    const TREE_FRAMES = [
+      "....TT....", "...TTTT...", "..TTTTTT..", ".TTTTTTTT.", "TTTTTTTTTT", "....HH....", "....HH...."
+    ];
     const APPLE_FRAME = ["..LL..", ".AAAA.", "AAAAAA", "AAAAAA", ".AAAA.", "..AA.."];
     const CAKE_FRAME  = ["..FF..", ".CWCW.", "MMMMM", "MMMMM"];
 
@@ -94,9 +124,6 @@
       { id: 'star', name: 'Starlight', primary: '#ec4899', secondary: '#8b5cf6' }
     ];
 
-    // ==========================================
-    // 2. 音效系統 (Web Audio API)
-    // ==========================================
     class RetroSynth {
       constructor() { this.ctx = null; this.muted = true; this.sizzleOsc = null; }
       init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -112,3 +139,182 @@
         if (this.muted) return; this.init(); const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
         osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.setValueAtTime(300, now + 0.08);
+        gain.gain.setValueAtTime(0.12, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain); gain.connect(this.ctx.destination); osc.start(now); osc.stop(now + 0.15);
+      }
+      startFireSizzle() {
+        if (this.muted || this.sizzleOsc) return; this.init();
+        try {
+          const now = this.ctx.currentTime; this.sizzleOsc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+          this.sizzleOsc.type = 'square'; this.sizzleOsc.frequency.setValueAtTime(220, now); gain.gain.setValueAtTime(0.02, now);
+          const lfo = this.ctx.createOscillator(); const lfoGain = this.ctx.createGain();
+          lfo.type = 'sawtooth'; lfo.frequency.setValueAtTime(35, now); lfoGain.gain.setValueAtTime(100, now);
+          lfo.connect(lfoGain); lfoGain.connect(this.sizzleOsc.frequency);
+          this.sizzleOsc.connect(gain); gain.connect(this.ctx.destination);
+          lfo.start(now); this.sizzleOsc.start(now); this.sizzleOsc.lfoRef = lfo;
+        } catch(e){}
+      }
+      stopFireSizzle() { if (this.sizzleOsc) { try { this.sizzleOsc.stop(); this.sizzleOsc.lfoRef.stop(); } catch(e){} this.sizzleOsc = null; } }
+    }
+
+    const canvas = document.getElementById('dinoCanvas');
+    const ctx = canvas.getContext('2d');
+    const synth = new RetroSynth();
+
+    let consumedCount = 0; let skinIdx = 0; let flameIdx = 0; let soundOn = false;
+    let snacks = []; let sparks = []; let trees = []; let stars = [];
+    let dino = { x: 220, y: 0, direction: 1, frameIndex: 0, ticks: 0, isEating: false, eatingTicks: 0, speechBubble: { text: "點擊天空投下零食餵我！🦖", ticks: 150 } };
+
+    for (let i = 0; i < 8; i++) { trees.push({ x: 60 + i * 90 + Math.random() * 20, heightScale: 0.85 + Math.random() * 0.3 }); }
+    for (let i = 0; i < 30; i++) { stars.push({ x: Math.random() * 728, y: Math.random() * 45, size: 0.8 + Math.random() * 1.5, alpha: Math.random(), blinkSpeed: 0.006 + Math.random() * 0.012 }); }
+
+    function dropSnack(type, customX) {
+      snacks.push({ id: Date.now(), type, x: customX || (80 + Math.random() * 568), y: -10, vy: 1, isGrounded: false, size: 2.8 });
+    }
+
+    document.getElementById('btnApple').onclick = (e) => { e.stopPropagation(); dropSnack('apple'); };
+    document.getElementById('btnCake').onclick = (e) => { e.stopPropagation(); dropSnack('cake'); };
+    document.getElementById('btnSkin').onclick = (e) => { e.stopPropagation(); skinIdx = (skinIdx + 1) % DINO_SKINS.length; synth.triggerEatSound(); };
+    document.getElementById('btnFlame').onclick = (e) => { e.stopPropagation(); flameIdx = (flameIdx + 1) % FLAME_PRESETS.length; synth.triggerEatSound(); };
+    document.getElementById('btnReset').onclick = (e) => { e.stopPropagation(); snacks = []; sparks = []; dino.x = 220; dino.direction = 1; dino.speechBubble = { text: "重置完畢！", ticks: 100 }; synth.triggerRoar(); };
+    
+    document.getElementById('btnAudio').onclick = (e) => {
+      e.stopPropagation(); soundOn = !soundOn; synth.setMute(!soundOn);
+      document.getElementById('btnAudio').innerText = soundOn ? "🔊 音效: ON" : "🔇 音效: OFF";
+      document.getElementById('btnAudio').style.borderColor = soundOn ? "#10b981" : "rgba(255,255,255,0.15)";
+      if (soundOn) { synth.triggerRoar(); synth.startFireSizzle(); }
+    };
+
+    canvas.onclick = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = (e.clientX - rect.left) * (728 / rect.width);
+      dropSnack(Math.random() > 0.5 ? 'apple' : 'cake', clickX);
+      synth.triggerEatSound();
+    };
+
+    let frameCount = 0;
+    function gameLoop() {
+      frameCount++;
+      const gY = 74; 
+      const currentSkin = DINO_SKINS[skinIdx];
+      const currentFlame = FLAME_PRESETS[flameIdx];
+
+      ctx.fillStyle = '#0a0d17'; ctx.fillRect(0, 0, 728, 90);
+      stars.forEach(star => {
+        star.alpha += star.blinkSpeed; if (star.alpha > 1 || star.alpha < 0.2) star.blinkSpeed = -star.blinkSpeed;
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`; ctx.fillRect(star.x, star.y, star.size, star.size);
+      });
+
+      ctx.fillStyle = '#111827'; ctx.fillRect(0, gY, 728, 16);
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0, gY); ctx.lineTo(728, gY); ctx.stroke();
+
+      trees.forEach(t => {
+        const tScale = 1.4 * t.heightScale;
+        const sway = Math.sin(frameCount * 0.03 + t.x * 0.1) * 0.8;
+        const tLeftX = t.x - (10 * tScale) / 2 + sway; const tTopY = gY - 7 * tScale + 1;
+        for (let r = 0; r < 7; r++) {
+          for (let c = 0; c < 10; c++) {
+            const char = TREE_FRAMES[r][c]; if (char === '.') continue;
+            ctx.fillStyle = char === 'T' ? '#047857' : '#78350f';
+            ctx.fillRect(tLeftX + c * tScale, tTopY + r * tScale, tScale, tScale);
+          }
+        }
+      });
+
+      snacks.forEach(sn => {
+        if (!sn.isGrounded) {
+          sn.vy += 0.22; sn.y += sn.vy;
+          if (sn.y >= gY - 6) { sn.y = gY - 6; sn.vy = -sn.vy * 0.3; if (Math.abs(sn.vy) < 0.4) sn.isGrounded = true; }
+        }
+      });
+
+      const dinoW = 24 * 2.1; const dinoH = 20 * 2.1;
+      dino.y = gY - dinoH + 2;
+
+      if (dino.isEating) {
+        dino.eatingTicks++; if (dino.eatingTicks > 45) { dino.isEating = false; dino.eatingTicks = 0; }
+      } else {
+        dino.ticks++;
+        if (dino.ticks % 6 === 0) dino.frameIndex = (dino.frameIndex + 1) % 2;
+        dino.x += dino.direction * 1.2;
+
+        let foodToChase = null; let shortestDist = 99999;
+        snacks.forEach(sn => { const dx = sn.x - (dino.x + dinoW / 2); if (Math.abs(dx) < shortestDist) { shortestDist = Math.abs(dx); foodToChase = sn; } });
+        if (foodToChase && shortestDist < 300) {
+          dino.direction = foodToChase.x > (dino.x + dinoW / 2) ? 1 : -1;
+        } else {
+          if (dino.x > 728 - dinoW - 20 && dino.direction === 1) dino.direction = -1;
+          else if (dino.x < 20 && dino.direction === -1) dino.direction = 1;
+        }
+      }
+
+      snacks = snacks.filter(sn => {
+        if (Math.abs(sn.x - (dino.x + dinoW / 2)) < 24 && sn.y > gY - 14) {
+          dino.isEating = true; dino.eatingTicks = 0; consumedCount++;
+          document.getElementById('eatCount').innerText = consumedCount;
+          dino.speechBubble = { text: ["好吃！ ♥", "美味 ✨", "讚啦 🍰", "嗷嗚 🍎"][Math.floor(Math.random() * 4)], ticks: 80 };
+          synth.triggerEatSound();
+          for (let s = 0; s < 8; s++) { sparks.push({ x: sn.x, y: sn.y, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 1) * 3, color: sn.type === 'apple' ? '#ef4444' : '#fb7185', size: 2, life: 0, maxLife: 20 }); }
+          return false;
+        }
+        return true;
+      });
+
+      let activeMatrix = DINO_FRAMES.fire[frameCount % 18 < 9 ? 0 : 1]; 
+      if (dino.isEating) activeMatrix = DINO_FRAMES.fire[frameCount % 10 < 5 ? 0 : 1];
+
+      const isFacingRight = dino.direction === 1;
+      for (let r = 0; r < 20; r++) {
+        for (let c = 0; c < 24; c++) {
+          const char = activeMatrix[r][c]; if (char === '.') continue;
+          const drawCol = isFacingRight ? c : (23 - c);
+          let pixelColor = currentSkin.primary;
+          if (char === 'B') pixelColor = currentSkin.secondary;
+          else if (char === 'S') pixelColor = frameCount % 12 < 6 ? '#ffffff' : currentFlame.primary;
+          else if (char === 'E') pixelColor = currentSkin.eye;
+          else if (char === 'M') pixelColor = '#ffd200';
+
+          ctx.fillStyle = pixelColor; ctx.fillRect(dino.x + drawCol * 2.1, dino.y + r * 2.1, 2.1, 2.1);
+        }
+      }
+
+      const realMouthX = dino.x + (isFacingRight ? 18.5 : 5.5) * 2.1; const realMouthY = dino.y + 5.2 * 2.1;
+      for (let i = 0; i < 3; i++) {
+        const angle = (isFacingRight ? 0 : Math.PI) + (Math.random() - 0.5) * 0.22; const pSpeed = 5.2 * (0.8 + Math.random() * 0.4);
+        sparks.push({ x: realMouthX, y: realMouthY, vx: Math.cos(angle) * pSpeed + dino.direction * 0.5, vy: Math.sin(angle) * pSpeed + (Math.random() - 0.5) * 1.0, color: Math.random() > 0.45 ? currentFlame.primary : currentFlame.secondary, size: 2.2 + Math.random() * 3, life: 0, maxLife: 30 });
+      }
+
+      snacks.forEach(sn => {
+        const sM = sn.type === 'apple' ? APPLE_FRAME : CAKE_FRAME;
+        for (let r = 0; r < sM.length; r++) {
+          for (let c = 0; c < sM[r].length; c++) {
+            const char = sM[r][c]; if (char === '.') continue;
+            let col = '#ef4444'; if (char === 'L') col = '#10b981'; else if (char === 'C') col = '#f59e0b'; else if (char === 'W') col = '#ffedd5'; else if (char === 'M') col = '#ec4899';
+            ctx.fillRect(sn.x + (c - sM[r].length / 2) * sn.size, sn.y + (r - sM.length / 2) * sn.size, sn.size, sn.size);
+          }
+        }
+      });
+
+      sparks.forEach(p => {
+        p.life++; p.vy += -0.02; p.x += p.vx; p.y += p.vy;
+        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, Math.max(0.8, p.size * (1 - p.life / p.maxLife)), Math.max(0.8, p.size * (1 - p.life / p.maxLife)));
+      });
+      sparks = sparks.filter(p => p.life < p.maxLife);
+
+      if (dino.speechBubble && dino.speechBubble.ticks > 0) {
+        dino.speechBubble.ticks--; ctx.font = 'bold 9px system-ui';
+        const txt = dino.speechBubble.text; const txtW = ctx.measureText(txt).width;
+        const rx = (dino.x + dinoW / 2) - (txtW + 10) / 2; const ry = dino.y - 18;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.strokeStyle = currentFlame.primary; ctx.lineWidth = 1;
+        ctx.fillRect(rx, ry, txtW + 10, 14); ctx.strokeRect(rx, ry, txtW + 10, 14);
+        ctx.fillStyle = '#ffffff'; ctx.fillText(txt, rx + 5, ry + 10);
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
